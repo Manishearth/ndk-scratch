@@ -15,26 +15,52 @@
  */
 package com.example.hellojni;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.SurfaceView;
+import android.view.View;
 import android.widget.TextView;
 import android.os.Bundle;
 
 
-public class HelloJni extends Activity
+public class HelloJni extends Activity implements View.OnTouchListener
 {
+    Bitmap bitmap;
+    BitmapDrawable bd;
+    SurfaceView view;
     /** Called when the activity is first created. */
+    @SuppressWarnings("deprecation")
+    @SuppressLint("NewApi")
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
+
         super.onCreate(savedInstanceState);
 
         /* Create a TextView and set its content.
          * the text is retrieved by calling a native
          * function.
          */
+        /*
         TextView  tv = new TextView(this);
-        tv.setText( stringFromJNI() );
-        setContentView(tv);
+        tv.setText( stringFromJNI() );*/
+
+        view = new SurfaceView(this);
+        bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+        bd = new BitmapDrawable(bitmap);
+        view.setBackground(bd);
+        for (int i = 1; i < 100; i++) {
+            for (int j=1; j < 100; j++) {
+                bitmap.setPixel(i, j , Color.RED);
+            }
+        }
+        view.setOnTouchListener(this);
+        setContentView(view);
     }
 
     /* A native method that is implemented by the
@@ -62,5 +88,19 @@ public class HelloJni extends Activity
      */
     static {
         System.loadLibrary("hello-jni");
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        Log.i("foo", "touch");
+        for (int i = 1; i < 100; i++) {
+            for (int j=1; j < 100; j++) {
+                bitmap.setPixel(i, j , Color.GREEN);
+            }
+        }
+        //view.setBackground(bd);
+        //setContentView(view);
+        view.invalidate();
+        return false;
     }
 }
