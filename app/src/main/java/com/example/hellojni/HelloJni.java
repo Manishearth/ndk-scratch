@@ -19,13 +19,17 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.TextView;
 import android.os.Bundle;
+
+import java.util.Random;
 
 
 public class HelloJni extends Activity implements View.OnTouchListener
@@ -33,6 +37,7 @@ public class HelloJni extends Activity implements View.OnTouchListener
     Bitmap bitmap;
     BitmapDrawable bd;
     SurfaceView view;
+    int height, width;
     /** Called when the activity is first created. */
     @SuppressWarnings("deprecation")
     @SuppressLint("NewApi")
@@ -51,12 +56,21 @@ public class HelloJni extends Activity implements View.OnTouchListener
         tv.setText( stringFromJNI() );*/
 
         view = new SurfaceView(this);
-        bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        height = size.y;
+        width = size.x;
+        Log.i("h", height + "");
+        Log.i("w", width + "");
+        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         bd = new BitmapDrawable(bitmap);
         view.setBackground(bd);
-        for (int i = 1; i < 100; i++) {
-            for (int j=1; j < 100; j++) {
-                bitmap.setPixel(i, j , Color.RED);
+
+        for (int i = 1; i < height; i++) {
+            for (int j=1; j < width; j++) {
+                bitmap.setPixel(j, i , Color.RED);
             }
         }
         view.setOnTouchListener(this);
@@ -92,10 +106,12 @@ public class HelloJni extends Activity implements View.OnTouchListener
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        Log.i("foo", "touch");
-        for (int i = 1; i < 100; i++) {
-            for (int j=1; j < 100; j++) {
-                bitmap.setPixel(i, j , Color.GREEN);
+        Log.i("foo", "x:"+ event.getX() + " y:" +event.getY());
+        Random rnd = new Random();
+        int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+        for (int i = (int) event.getY(); i < height && i < event.getY() + 20; i++) {
+            for (int j = (int) event.getX(); j < width && j < event.getX() + 20; j++) {
+                bitmap.setPixel(j, i , color);
             }
         }
         //view.setBackground(bd);
