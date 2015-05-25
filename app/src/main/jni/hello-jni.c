@@ -16,7 +16,8 @@
  */
 #include <string.h>
 #include <jni.h>
-    
+#include <android/bitmap.h>
+
 /* This is a trivial JNI example where we use a native method
  * to return a new VM String. See the corresponding Java source
  * file located at:
@@ -28,4 +29,22 @@ Java_com_example_hellojni_HelloJni_stringFromJNI( JNIEnv* env,
                                                   jobject thiz )
 {
     return (*env)->NewStringUTF(env, "Hello from JNI !  Compiled with ABI foo.");
+}
+
+void Java_com_example_hellojni_HelloJni_bitmapFoo( JNIEnv* env,
+                                          jobject thiz,
+                                          jobject bitmap,
+                                          jint x,
+                                          jint y,
+                                          jint width,
+                                          jint height) {
+    void* pixels;
+    AndroidBitmap_lockPixels(env, bitmap, &pixels);
+    int i, j;
+    for (i = 0; i< 20; i++) {
+        for (j = 0; j<20; j++) {
+            ((uint32_t*)pixels)[width*(y+i) + x + j] = (uint32_t) 0xFFABABAB;
+         }
+    }
+    AndroidBitmap_unlockPixels(env, bitmap);
 }

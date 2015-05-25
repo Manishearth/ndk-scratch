@@ -11,6 +11,7 @@ android {
 
         ndk {
             moduleName "hello-jni"
+            ldLibs "log", "android", "jnigraphics"
         }
 
         testApplicationId "com.example.hellojni.tests"

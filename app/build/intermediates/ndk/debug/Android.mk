@@ -2,6 +2,11 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := hello-jni
+LOCAL_LDLIBS := \
+	-llog \
+	-landroid \
+	-ljnigraphics \
+
 LOCAL_SRC_FILES := \
 	C:\Users\t-magor\Desktop\hello-jni\app\src\main\jni\Android.mk \
 	C:\Users\t-magor\Desktop\hello-jni\app\src\main\jni\Application.mk \

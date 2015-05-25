@@ -82,6 +82,7 @@ public class HelloJni extends Activity implements View.OnTouchListener
      * with this application.
      */
     public native String  stringFromJNI();
+    public native void bitmapFoo(Bitmap bitmap, int x,int y,int width, int height);
 
     /* This is another native method declaration that is *not*
      * implemented by 'hello-jni'. This is simply to show that
@@ -107,11 +108,12 @@ public class HelloJni extends Activity implements View.OnTouchListener
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         Log.i("foo", "x:"+ event.getX() + " y:" +event.getY());
+        bitmapFoo(bitmap,(int) event.getX(),(int) event.getY(), width, height);
         Random rnd = new Random();
         int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
         for (int i = (int) event.getY(); i < height && i < event.getY() + 20; i++) {
             for (int j = (int) event.getX(); j < width && j < event.getX() + 20; j++) {
-                bitmap.setPixel(j, i , color);
+               //  bitmap.setPixel(j, i , color);
             }
         }
         //view.setBackground(bd);
