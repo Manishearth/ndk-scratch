@@ -11,6 +11,7 @@ LOCAL_SRC_FILES := \
 	C:\Users\t-magor\Desktop\hello-jni\app\src\main\jni\Android.mk \
 	C:\Users\t-magor\Desktop\hello-jni\app\src\main\jni\Application.mk \
 	C:\Users\t-magor\Desktop\hello-jni\app\src\main\jni\hello-jni.c \
+	C:\Users\t-magor\Desktop\hello-jni\app\src\main\jni\layer.cpp \
 
 LOCAL_C_INCLUDES += C:\Users\t-magor\Desktop\hello-jni\app\src\main\jni
 LOCAL_C_INCLUDES += C:\Users\t-magor\Desktop\hello-jni\app\src\debug\jni

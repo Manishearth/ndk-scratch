@@ -38,6 +38,7 @@ public class HelloJni extends Activity implements View.OnTouchListener
     BitmapDrawable bd;
     SurfaceView view;
     int height, width;
+    long cppLayer;
     /** Called when the activity is first created. */
     @SuppressWarnings("deprecation")
     @SuppressLint("NewApi")
@@ -67,13 +68,17 @@ public class HelloJni extends Activity implements View.OnTouchListener
         bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         bd = new BitmapDrawable(bitmap);
         view.setBackground(bd);
+        cppLayer = getLayer(width, height);
+        flushLayer(bitmap, cppLayer);
 
+/*
         for (int i = 1; i < height; i++) {
             for (int j=1; j < width; j++) {
                 bitmap.setPixel(j, i , Color.RED);
             }
         }
-        view.setOnTouchListener(this);
+*/
+        // view.setOnTouchListener(this);
         setContentView(view);
     }
 
@@ -82,6 +87,9 @@ public class HelloJni extends Activity implements View.OnTouchListener
      * with this application.
      */
     public native String  stringFromJNI();
+
+    public native long  getLayer(int w, int h);
+    public native void  flushLayer(Bitmap bitmap, long layer);
     public native void bitmapFoo(Bitmap bitmap, int x,int y,int width, int height);
 
     /* This is another native method declaration that is *not*
@@ -107,13 +115,14 @@ public class HelloJni extends Activity implements View.OnTouchListener
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+
         Log.i("foo", "x:"+ event.getX() + " y:" +event.getY());
-        bitmapFoo(bitmap,(int) event.getX(),(int) event.getY(), width, height);
+        // bitmapFoo(bitmap,(int) event.getX(),(int) event.getY(), width, height);
         Random rnd = new Random();
         int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
         for (int i = (int) event.getY(); i < height && i < event.getY() + 20; i++) {
             for (int j = (int) event.getX(); j < width && j < event.getX() + 20; j++) {
-               //  bitmap.setPixel(j, i , color);
+                //  bitmap.setPixel(j, i , color);
             }
         }
         //view.setBackground(bd);
