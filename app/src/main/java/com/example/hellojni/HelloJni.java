@@ -90,6 +90,7 @@ public class HelloJni extends Activity implements View.OnTouchListener
 
     public native long  getLayer(int w, int h);
     public native void  flushLayer(Bitmap bitmap, long rootLayer);
+    public native void  flushDirty(Bitmap bitmap, long rootLayer);
     public native long  touchLayer(long rootLayer, int x, int y);
     public native void bitmapFoo(Bitmap bitmap, int x,int y,int width, int height);
 
@@ -116,24 +117,19 @@ public class HelloJni extends Activity implements View.OnTouchListener
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-
-        Log.i("foo", "x:"+ event.getX() + " y:" +event.getY());
-        // bitmapFoo(bitmap,(int) event.getX(),(int) event.getY(), width, height);
-        /*
-        Random rnd = new Random();
-        int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-        for (int i = (int) event.getY(); i < height && i < event.getY() + 20; i++) {
-            for (int j = (int) event.getX(); j < width && j < event.getX() + 20; j++) {
-                //  bitmap.setPixel(j, i , color);
-            }
-        }
-        //view.setBackground(bd);
-        //setContentView(view);
-        */
+        // directly invalidate sublayers without dirty flag
         long layer = touchLayer(cppLayer, (int)event.getX(), (int)event.getY());
         if (layer != 0) {
             flushLayer(bitmap, layer);
         }
+
+        /*
+        // code for testing dirty flag
+        touches++;
+        if (touches %3 == 0) {
+            flushDirty(bitmap, cppLayer);
+        }
+        */
         view.invalidate();
         return false;
     }
