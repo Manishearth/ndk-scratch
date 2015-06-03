@@ -78,7 +78,7 @@ public class HelloJni extends Activity implements View.OnTouchListener
             }
         }
 */
-        // view.setOnTouchListener(this);
+        view.setOnTouchListener(this);
         setContentView(view);
     }
 
@@ -89,7 +89,8 @@ public class HelloJni extends Activity implements View.OnTouchListener
     public native String  stringFromJNI();
 
     public native long  getLayer(int w, int h);
-    public native void  flushLayer(Bitmap bitmap, long layer);
+    public native void  flushLayer(Bitmap bitmap, long rootLayer);
+    public native long  touchLayer(long rootLayer, int x, int y);
     public native void bitmapFoo(Bitmap bitmap, int x,int y,int width, int height);
 
     /* This is another native method declaration that is *not*
@@ -118,6 +119,7 @@ public class HelloJni extends Activity implements View.OnTouchListener
 
         Log.i("foo", "x:"+ event.getX() + " y:" +event.getY());
         // bitmapFoo(bitmap,(int) event.getX(),(int) event.getY(), width, height);
+        /*
         Random rnd = new Random();
         int color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
         for (int i = (int) event.getY(); i < height && i < event.getY() + 20; i++) {
@@ -127,6 +129,11 @@ public class HelloJni extends Activity implements View.OnTouchListener
         }
         //view.setBackground(bd);
         //setContentView(view);
+        */
+        long layer = touchLayer(cppLayer, (int)event.getX(), (int)event.getY());
+        if (layer != 0) {
+            flushLayer(bitmap, layer);
+        }
         view.invalidate();
         return false;
     }
