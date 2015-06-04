@@ -60,5 +60,18 @@ extern "C" {
             AndroidBitmap_unlockPixels(env, bitmap);
         }
     }
+    // paint outside of the lock and memcpy
+    void Java_com_example_hellojni_HelloJni_draw3(JNIEnv* env, jobject thiz,jobject bitmap, jint w, jint h) {
+        uint32_t* pixels0 = new uint32_t[w*h];
 
+
+        int i;
+        for(i = 0; i<100; i++) {
+            void *pixels;
+            paint((void*)pixels0, w, h);
+            AndroidBitmap_lockPixels(env, bitmap, &pixels);
+            memcpy(pixels, pixels0, w*h*sizeof(uint32_t));
+            AndroidBitmap_unlockPixels(env, bitmap);
+        }
+    }
 }

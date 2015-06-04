@@ -90,6 +90,7 @@ public class HelloJni extends Activity implements View.OnTouchListener
 
     public native void  draw1(Bitmap bitmap, int w, int h);
     public native void  draw2(Bitmap bitmap, int w, int h);
+    public native void  draw3(Bitmap bitmap, int w, int h);
 
     /* this is used to load the 'hello-jni' library on application
      * startup. The library has already been unpacked into
@@ -102,14 +103,19 @@ public class HelloJni extends Activity implements View.OnTouchListener
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        long tStart = System.currentTimeMillis();
+        long tStart, tEnd;
+        tStart = System.currentTimeMillis();
         draw1(bitmap, width, height);
-        long tEnd = System.currentTimeMillis();
+        tEnd = System.currentTimeMillis();
         Log.i("Memory", "(Lock 1)"+(tEnd - tStart));
         tStart = System.currentTimeMillis();
         draw2(bitmap, width, height);
         tEnd = System.currentTimeMillis();
         Log.i("Memory", "(Copy 1)"+ (tEnd - tStart));
+        tStart = System.currentTimeMillis();
+        draw3(bitmap, width, height);
+        tEnd = System.currentTimeMillis();
+        Log.i("Memory", "(PaintCopy 1)"+ (tEnd - tStart));
 
         tStart = System.currentTimeMillis();
         draw1(bitmap, width, height);
@@ -119,6 +125,10 @@ public class HelloJni extends Activity implements View.OnTouchListener
         draw2(bitmap, width, height);
         tEnd = System.currentTimeMillis();
         Log.i("Memory", "(Copy 2)"+ (tEnd - tStart));
+        tStart = System.currentTimeMillis();
+        draw3(bitmap, width, height);
+        tEnd = System.currentTimeMillis();
+        Log.i("Memory", "(PaintCopy 2)"+ (tEnd - tStart));
 
         tStart = System.currentTimeMillis();
         draw1(bitmap, width, height);
@@ -128,6 +138,11 @@ public class HelloJni extends Activity implements View.OnTouchListener
         draw2(bitmap, width, height);
         tEnd = System.currentTimeMillis();
         Log.i("Memory", "(Copy 3)"+ (tEnd - tStart));
+        tStart = System.currentTimeMillis();
+        draw3(bitmap, width, height);
+        tEnd = System.currentTimeMillis();
+        Log.i("Memory", "(PaintCopy 3)"+ (tEnd - tStart));
+
         view.invalidate();
         return false;
     }
