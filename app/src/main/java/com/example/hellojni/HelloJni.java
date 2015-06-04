@@ -91,6 +91,10 @@ public class HelloJni extends Activity implements View.OnTouchListener
     public native void  draw1(Bitmap bitmap, int w, int h);
     public native void  draw2(Bitmap bitmap, int w, int h);
     public native void  draw3(Bitmap bitmap, int w, int h);
+    public native void  draw4(Bitmap bitmap, int w, int h);
+    public native void  draw5(Bitmap bitmap, int w, int h);
+    public native void  draw6(Bitmap bitmap, int w, int h);
+    public native void  LOCK(Bitmap bitmap, int w, int h);
 
     /* this is used to load the 'hello-jni' library on application
      * startup. The library has already been unpacked into
@@ -104,19 +108,36 @@ public class HelloJni extends Activity implements View.OnTouchListener
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         long tStart, tEnd;
+        /*
         tStart = System.currentTimeMillis();
         draw1(bitmap, width, height);
         tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(Lock 1)"+(tEnd - tStart));
+        Log.i("Memory", "(LockPaint 1)    "+(tEnd - tStart));
         tStart = System.currentTimeMillis();
         draw2(bitmap, width, height);
         tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(Copy 1)"+ (tEnd - tStart));
+        Log.i("Memory", "(PaintLockCopy 1)"+ (tEnd - tStart));
         tStart = System.currentTimeMillis();
         draw3(bitmap, width, height);
         tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(PaintCopy 1)"+ (tEnd - tStart));
+        Log.i("Memory", "(PaintCopy 1)    "+ (tEnd - tStart));
+        tStart = System.currentTimeMillis();
+        draw4(bitmap, width, height);
+        tEnd = System.currentTimeMillis();
+        Log.i("Memory", "(PaintOnly 1)    "+ (tEnd - tStart));
+        tStart = System.currentTimeMillis();
+        draw5(bitmap, width, height);
+        tEnd = System.currentTimeMillis();
+        Log.i("Memory", "(LockOnly 1)     "+ (tEnd - tStart));
+        tStart = System.currentTimeMillis();
+        draw6(bitmap, width, height);
+        tEnd = System.currentTimeMillis();
+        Log.i("Memory", "(PaintBuf 1)     "+ (tEnd - tStart));
 
+
+        */
+        LOCK(bitmap, width, height);
+        /*
         tStart = System.currentTimeMillis();
         draw1(bitmap, width, height);
         tEnd = System.currentTimeMillis();
@@ -142,7 +163,7 @@ public class HelloJni extends Activity implements View.OnTouchListener
         draw3(bitmap, width, height);
         tEnd = System.currentTimeMillis();
         Log.i("Memory", "(PaintCopy 3)"+ (tEnd - tStart));
-
+*/
         view.invalidate();
         return false;
     }

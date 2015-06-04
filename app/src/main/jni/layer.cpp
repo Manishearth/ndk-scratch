@@ -39,7 +39,7 @@ extern "C" {
     void Java_com_example_hellojni_HelloJni_draw1(JNIEnv* env, jobject thiz,jobject bitmap,jint w, jint h) {
 
         int i;
-        for(i = 0; i<100; i++) {
+        for(i = 0; i<1000; i++) {
             void* pixels;
             AndroidBitmap_lockPixels(env, bitmap, &pixels);
             paint(pixels, w, h);
@@ -53,7 +53,7 @@ extern "C" {
 
         paint((void*)pixels0, w, h);
         int i;
-        for(i = 0; i<100; i++) {
+        for(i = 0; i<1000; i++) {
             void *pixels;
             AndroidBitmap_lockPixels(env, bitmap, &pixels);
             memcpy(pixels, pixels0, w*h*sizeof(uint32_t));
@@ -66,7 +66,7 @@ extern "C" {
 
 
         int i;
-        for(i = 0; i<100; i++) {
+        for(i = 0; i<1000; i++) {
             void *pixels;
             paint((void*)pixels0, w, h);
             AndroidBitmap_lockPixels(env, bitmap, &pixels);
@@ -74,4 +74,43 @@ extern "C" {
             AndroidBitmap_unlockPixels(env, bitmap);
         }
     }
+       void Java_com_example_hellojni_HelloJni_draw4(JNIEnv* env, jobject thiz,jobject bitmap, jint w, jint h) {
+           uint32_t* pixels0 = new uint32_t[w*h];
+
+
+           int i;
+           for(i = 0; i<1000; i++) {
+               void *pixels;
+               paint((void*)pixels0, w, h);
+           }
+       }
+      void Java_com_example_hellojni_HelloJni_draw5(JNIEnv* env, jobject thiz,jobject bitmap, jint w, jint h) {
+          int i;
+          for(i = 0; i<1000; i++) {
+              void *pixels;
+              AndroidBitmap_lockPixels(env, bitmap, &pixels);
+
+              AndroidBitmap_unlockPixels(env, bitmap);
+          }
+      }
+     void Java_com_example_hellojni_HelloJni_draw6(JNIEnv* env, jobject thiz,jobject bitmap,jint w, jint h) {
+
+         int i;
+          void* pixels;
+          AndroidBitmap_lockPixels(env, bitmap, &pixels);
+         for(i = 0; i<1000; i++) {
+
+             paint(pixels, w, h);
+
+         }
+        AndroidBitmap_unlockPixels(env, bitmap);
+     }
+
+      void Java_com_example_hellojni_HelloJni_LOCK(JNIEnv* env, jobject thiz,jobject bitmap,jint w, jint h) {
+
+          int i;
+           void* pixels;
+           AndroidBitmap_lockPixels(env, bitmap, &pixels);
+
+      }
 }
