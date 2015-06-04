@@ -63,21 +63,21 @@ public class HelloJni extends Activity implements View.OnTouchListener
         display.getSize(size);
         height = size.y;
         width = size.x;
-        Log.i("h", height + "");
-        Log.i("w", width + "");
+        Log.i("Manish h", height + " Manish");
+        Log.i("Manish w", width + " Manish");
         bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         bd = new BitmapDrawable(bitmap);
         view.setBackground(bd);
-        cppLayer = getLayer(width, height);
-        flushLayer(bitmap, cppLayer);
 
-/*
-        for (int i = 1; i < height; i++) {
-            for (int j=1; j < width; j++) {
-                bitmap.setPixel(j, i , Color.RED);
-            }
-        }
-*/
+        long tStart = System.currentTimeMillis();
+        draw1(bitmap, width, height);
+        long tEnd = System.currentTimeMillis();
+        Log.i("t1:", (tEnd - tStart) + " Manish");
+        tStart = System.currentTimeMillis();
+        draw2(bitmap, width, height);
+        tEnd = System.currentTimeMillis();
+        Log.i("t2:", (tEnd - tStart) + " Manish");
+
         view.setOnTouchListener(this);
         setContentView(view);
     }
@@ -88,23 +88,8 @@ public class HelloJni extends Activity implements View.OnTouchListener
      */
     public native String  stringFromJNI();
 
-    public native long  getLayer(int w, int h);
-    public native void  flushLayer(Bitmap bitmap, long rootLayer);
-    public native void  flushDirty(Bitmap bitmap, long rootLayer);
-    public native long  touchLayer(long rootLayer, int x, int y);
-    public native void bitmapFoo(Bitmap bitmap, int x,int y,int width, int height);
-
-    /* This is another native method declaration that is *not*
-     * implemented by 'hello-jni'. This is simply to show that
-     * you can declare as many native methods in your Java code
-     * as you want, their implementation is searched in the
-     * currently loaded native libraries only the first time
-     * you call them.
-     *
-     * Trying to call this function will result in a
-     * java.lang.UnsatisfiedLinkError exception !
-     */
-    public native String  unimplementedStringFromJNI();
+    public native void  draw1(Bitmap bitmap, int w, int h);
+    public native void  draw2(Bitmap bitmap, int w, int h);
 
     /* this is used to load the 'hello-jni' library on application
      * startup. The library has already been unpacked into
@@ -117,19 +102,32 @@ public class HelloJni extends Activity implements View.OnTouchListener
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        // directly invalidate sublayers without dirty flag
-        long layer = touchLayer(cppLayer, (int)event.getX(), (int)event.getY());
-        if (layer != 0) {
-            flushLayer(bitmap, layer);
-        }
+        long tStart = System.currentTimeMillis();
+        draw1(bitmap, width, height);
+        long tEnd = System.currentTimeMillis();
+        Log.i("Memory", "(Lock 1)"+(tEnd - tStart));
+        tStart = System.currentTimeMillis();
+        draw2(bitmap, width, height);
+        tEnd = System.currentTimeMillis();
+        Log.i("Memory", "(Copy 1)"+ (tEnd - tStart));
 
-        /*
-        // code for testing dirty flag
-        touches++;
-        if (touches %3 == 0) {
-            flushDirty(bitmap, cppLayer);
-        }
-        */
+        tStart = System.currentTimeMillis();
+        draw1(bitmap, width, height);
+        tEnd = System.currentTimeMillis();
+        Log.i("Memory", "(Lock 2)"+(tEnd - tStart));
+        tStart = System.currentTimeMillis();
+        draw2(bitmap, width, height);
+        tEnd = System.currentTimeMillis();
+        Log.i("Memory", "(Copy 2)"+ (tEnd - tStart));
+
+        tStart = System.currentTimeMillis();
+        draw1(bitmap, width, height);
+        tEnd = System.currentTimeMillis();
+        Log.i("Memory", "(Lock 3)"+(tEnd - tStart));
+        tStart = System.currentTimeMillis();
+        draw2(bitmap, width, height);
+        tEnd = System.currentTimeMillis();
+        Log.i("Memory", "(Copy 3)"+ (tEnd - tStart));
         view.invalidate();
         return false;
     }
