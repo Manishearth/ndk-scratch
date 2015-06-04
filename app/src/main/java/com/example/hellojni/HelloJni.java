@@ -21,8 +21,11 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ScaleDrawable;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
@@ -38,7 +41,7 @@ public class HelloJni extends Activity implements View.OnTouchListener
     BitmapDrawable bd;
     SurfaceView view;
     int height, width;
-    long cppLayer;
+    DualBitmap dual;
     /** Called when the activity is first created. */
     @SuppressWarnings("deprecation")
     @SuppressLint("NewApi")
@@ -65,19 +68,13 @@ public class HelloJni extends Activity implements View.OnTouchListener
         width = size.x;
         Log.i("Manish h", height + " Manish");
         Log.i("Manish w", width + " Manish");
+        height = height / 2;
+        width = width / 2;
         bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         bd = new BitmapDrawable(bitmap);
         view.setBackground(bd);
-
-        long tStart = System.currentTimeMillis();
-        draw1(bitmap, width, height);
-        long tEnd = System.currentTimeMillis();
-        Log.i("t1:", (tEnd - tStart) + " Manish");
-        tStart = System.currentTimeMillis();
-        draw2(bitmap, width, height);
-        tEnd = System.currentTimeMillis();
-        Log.i("t2:", (tEnd - tStart) + " Manish");
-
+        bd.setGravity(Gravity.CENTER);
+        dual = new DualBitmap(bitmap);
         view.setOnTouchListener(this);
         setContentView(view);
     }
@@ -88,13 +85,7 @@ public class HelloJni extends Activity implements View.OnTouchListener
      */
     public native String  stringFromJNI();
 
-    public native void  draw1(Bitmap bitmap, int w, int h);
-    public native void  draw2(Bitmap bitmap, int w, int h);
-    public native void  draw3(Bitmap bitmap, int w, int h);
-    public native void  draw4(Bitmap bitmap, int w, int h);
-    public native void  draw5(Bitmap bitmap, int w, int h);
-    public native void  draw6(Bitmap bitmap, int w, int h);
-    public native void  LOCK(Bitmap bitmap, int w, int h);
+
 
     /* this is used to load the 'hello-jni' library on application
      * startup. The library has already been unpacked into
@@ -104,66 +95,27 @@ public class HelloJni extends Activity implements View.OnTouchListener
     static {
         System.loadLibrary("hello-jni");
     }
-
+    boolean state;
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        long tStart, tEnd;
-        /*
-        tStart = System.currentTimeMillis();
-        draw1(bitmap, width, height);
-        tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(LockPaint 1)    "+(tEnd - tStart));
-        tStart = System.currentTimeMillis();
-        draw2(bitmap, width, height);
-        tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(PaintLockCopy 1)"+ (tEnd - tStart));
-        tStart = System.currentTimeMillis();
-        draw3(bitmap, width, height);
-        tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(PaintCopy 1)    "+ (tEnd - tStart));
-        tStart = System.currentTimeMillis();
-        draw4(bitmap, width, height);
-        tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(PaintOnly 1)    "+ (tEnd - tStart));
-        tStart = System.currentTimeMillis();
-        draw5(bitmap, width, height);
-        tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(LockOnly 1)     "+ (tEnd - tStart));
-        tStart = System.currentTimeMillis();
-        draw6(bitmap, width, height);
-        tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(PaintBuf 1)     "+ (tEnd - tStart));
+        long timeStart, timeEnd;
+        if (state) {
+            timeStart = System.currentTimeMillis();
+            for (int i=0; i<100;i++) {
+                dual.fillC();
+            }
+            timeEnd = System.currentTimeMillis();
+            Log.i("Profiling", "C:"+ (timeEnd - timeStart));
+        } else {
+            timeStart = System.currentTimeMillis();
+            for (int i=0; i<100;i++) {
+                dual.fill();
+            }
+            timeEnd = System.currentTimeMillis();
+            Log.i("Profiling", "Java:"+(timeEnd - timeStart));
+        }
 
-
-        */
-        LOCK(bitmap, width, height);
-        /*
-        tStart = System.currentTimeMillis();
-        draw1(bitmap, width, height);
-        tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(Lock 2)"+(tEnd - tStart));
-        tStart = System.currentTimeMillis();
-        draw2(bitmap, width, height);
-        tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(Copy 2)"+ (tEnd - tStart));
-        tStart = System.currentTimeMillis();
-        draw3(bitmap, width, height);
-        tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(PaintCopy 2)"+ (tEnd - tStart));
-
-        tStart = System.currentTimeMillis();
-        draw1(bitmap, width, height);
-        tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(Lock 3)"+(tEnd - tStart));
-        tStart = System.currentTimeMillis();
-        draw2(bitmap, width, height);
-        tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(Copy 3)"+ (tEnd - tStart));
-        tStart = System.currentTimeMillis();
-        draw3(bitmap, width, height);
-        tEnd = System.currentTimeMillis();
-        Log.i("Memory", "(PaintCopy 3)"+ (tEnd - tStart));
-*/
+        state = !state;
         view.invalidate();
         return false;
     }

@@ -19,6 +19,22 @@
 
 using namespace std;
 uint32_t randomColor();
+void paint(void* pixels, int w, int h);
+
+class CBitmapHandle {\
+    public:
+    void* pixels;
+    uint32_t width;
+    uint32_t height;
+    CBitmapHandle(int w, int h) {
+        width = w;
+        height = h;
+    }
+    void fill() {
+        paint(pixels, width, height);
+    }
+};
+
 
 // inefficiently paint to buffer
 void paint(void* pixels, int w, int h) {
@@ -35,82 +51,25 @@ uint32_t randomColor() {
 }
 
 extern "C" {
-    // paint each time, but directly
-    void Java_com_example_hellojni_HelloJni_draw1(JNIEnv* env, jobject thiz,jobject bitmap,jint w, jint h) {
+    jlong Java_com_example_hellojni_DualBitmap_LOCK(JNIEnv* env, jobject thiz,jobject bitmap,jint w, jint h) {
 
-        int i;
-        for(i = 0; i<1000; i++) {
-            void* pixels;
-            AndroidBitmap_lockPixels(env, bitmap, &pixels);
-            paint(pixels, w, h);
-            AndroidBitmap_unlockPixels(env, bitmap);
-        }
+       CBitmapHandle *bh = new CBitmapHandle(w, h);
+       AndroidBitmap_lockPixels(env, bitmap, &bh->pixels);
+       return (long)(void*)bh;
 
     }
-    // paint once, memcpy multiple times
-    void Java_com_example_hellojni_HelloJni_draw2(JNIEnv* env, jobject thiz,jobject bitmap, jint w, jint h) {
-        uint32_t* pixels0 = new uint32_t[w*h];
+    void Java_com_example_hellojni_DualBitmap_UNLOCK(JNIEnv* env, jobject thiz,jobject bitmap) {
 
-        paint((void*)pixels0, w, h);
-        int i;
-        for(i = 0; i<1000; i++) {
-            void *pixels;
-            AndroidBitmap_lockPixels(env, bitmap, &pixels);
-            memcpy(pixels, pixels0, w*h*sizeof(uint32_t));
-            AndroidBitmap_unlockPixels(env, bitmap);
-        }
+       AndroidBitmap_unlockPixels(env, bitmap);
+
+
     }
-    // paint outside of the lock and memcpy
-    void Java_com_example_hellojni_HelloJni_draw3(JNIEnv* env, jobject thiz,jobject bitmap, jint w, jint h) {
-        uint32_t* pixels0 = new uint32_t[w*h];
-
-
-        int i;
-        for(i = 0; i<1000; i++) {
-            void *pixels;
-            paint((void*)pixels0, w, h);
-            AndroidBitmap_lockPixels(env, bitmap, &pixels);
-            memcpy(pixels, pixels0, w*h*sizeof(uint32_t));
-            AndroidBitmap_unlockPixels(env, bitmap);
-        }
+    void Java_com_example_hellojni_DualBitmap_drawC(JNIEnv* env, jobject thiz,jlong bh) {
+        CBitmapHandle *handle = (CBitmapHandle*)bh;
+        handle->fill();
     }
-       void Java_com_example_hellojni_HelloJni_draw4(JNIEnv* env, jobject thiz,jobject bitmap, jint w, jint h) {
-           uint32_t* pixels0 = new uint32_t[w*h];
 
-
-           int i;
-           for(i = 0; i<1000; i++) {
-               void *pixels;
-               paint((void*)pixels0, w, h);
-           }
-       }
-      void Java_com_example_hellojni_HelloJni_draw5(JNIEnv* env, jobject thiz,jobject bitmap, jint w, jint h) {
-          int i;
-          for(i = 0; i<1000; i++) {
-              void *pixels;
-              AndroidBitmap_lockPixels(env, bitmap, &pixels);
-
-              AndroidBitmap_unlockPixels(env, bitmap);
-          }
-      }
-     void Java_com_example_hellojni_HelloJni_draw6(JNIEnv* env, jobject thiz,jobject bitmap,jint w, jint h) {
-
-         int i;
-          void* pixels;
-          AndroidBitmap_lockPixels(env, bitmap, &pixels);
-         for(i = 0; i<1000; i++) {
-
-             paint(pixels, w, h);
-
-         }
-        AndroidBitmap_unlockPixels(env, bitmap);
-     }
-
-      void Java_com_example_hellojni_HelloJni_LOCK(JNIEnv* env, jobject thiz,jobject bitmap,jint w, jint h) {
-
-          int i;
-           void* pixels;
-           AndroidBitmap_lockPixels(env, bitmap, &pixels);
-
-      }
+    jint Java_com_example_hellojni_DualBitmap_randomColor(JNIEnv* env) {
+        return randomColor();
+    }
 }
