@@ -17,6 +17,8 @@ public class DualBitmap {
     native long UNLOCK(Bitmap bitmap);
     native long drawC(long CHandle);
     public static native int randomColor();
+    public static native void copyBuf(long cbin, long cbout);
+    public static native void freeWrap(long cHandle);
 
     /**
      * Creates a bitmap and locks it
@@ -43,7 +45,9 @@ public class DualBitmap {
      * after closing.
      */
     public void close() {
+        // TODO: free() the inner CBitmapHandle
         UNLOCK(bitmap);
+        freeWrap(cBitmap);
     }
 
     /**
@@ -63,6 +67,9 @@ public class DualBitmap {
         return cBitmap;
     }
 
+    /**
+     * Fills the bitmap with a random color, from Java
+     */
     public void fill() {
         int color = randomColor();
         int w = bitmap.getWidth();
@@ -73,8 +80,20 @@ public class DualBitmap {
             }
         }
     }
-
+    /**
+     * Fills the bitmap with a random color, from C++
+     */
     public void fillC() {
         drawC(cBitmap);
     }
+
+    /**
+     * memcpy buffer of DualBitmap to other DualBitmap
+     * @param out DualBitmap that should receive the buffer contents
+     */
+    public void copyTo(DualBitmap out) {
+        copyBuf(cBitmap, out.cBitmap);
+    }
+
+
 }

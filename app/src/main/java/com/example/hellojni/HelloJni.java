@@ -37,11 +37,13 @@ import java.util.Random;
 
 public class HelloJni extends Activity implements View.OnTouchListener
 {
-    Bitmap bitmap;
-    BitmapDrawable bd;
+    BitmapDrawable bd1;
+    BitmapDrawable bd2;
     SurfaceView view;
     int height, width;
-    DualBitmap dual;
+    DualBitmap dual1;
+    DualBitmap dual2;
+
     /** Called when the activity is first created. */
     @SuppressWarnings("deprecation")
     @SuppressLint("NewApi")
@@ -70,12 +72,17 @@ public class HelloJni extends Activity implements View.OnTouchListener
         Log.i("Manish w", width + " Manish");
         height = height / 2;
         width = width / 2;
-        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        bd = new BitmapDrawable(bitmap);
-        view.setBackground(bd);
-        bd.setGravity(Gravity.CENTER);
-        dual = new DualBitmap(bitmap);
+        dual1 = new DualBitmap(width, height);
+        dual2 = new DualBitmap(width, height);
+        bd1 = new BitmapDrawable(dual1.getBitmap());
+        bd2 = new BitmapDrawable(dual2.getBitmap());
+        view.setBackground(bd1);
+        bd1.setGravity(Gravity.CENTER);
+        bd2.setGravity(Gravity.CENTER);
         view.setOnTouchListener(this);
+        current = 1;
+        //dual1.fillC();
+        //dual2.fillC();
         setContentView(view);
     }
 
@@ -96,27 +103,54 @@ public class HelloJni extends Activity implements View.OnTouchListener
         System.loadLibrary("hello-jni");
     }
     boolean state;
+    int current;
+    @SuppressLint("NewApi")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         long timeStart, timeEnd;
+        current = 1;
+        view.setBackground(bd1);
         if (state) {
+
             timeStart = System.currentTimeMillis();
-            for (int i=0; i<100;i++) {
-                dual.fillC();
+            for (int i=0; i<1000;i++) {
+                fillSwap();
             }
             timeEnd = System.currentTimeMillis();
-            Log.i("Profiling", "C:"+ (timeEnd - timeStart));
+            Log.i("Profiling", "SwapFill:"+ (timeEnd - timeStart));
         } else {
             timeStart = System.currentTimeMillis();
-            for (int i=0; i<100;i++) {
-                dual.fill();
+            for (int i=0; i<1000;i++) {
+                fillCopy();
             }
             timeEnd = System.currentTimeMillis();
-            Log.i("Profiling", "Java:"+(timeEnd - timeStart));
+            Log.i("Profiling", "CopyFill:"+ (timeEnd - timeStart));
         }
 
         state = !state;
         view.invalidate();
         return false;
+    }
+
+    @SuppressLint("NewApi")
+    void fillSwap() {
+        if (current == 1) {
+            dual2.fillC();
+            view.setBackground(bd2);
+        } else {
+            dual1.fillC();
+            view.setBackground(bd1);
+        }
+
+        current = 3 - current;
+    }
+    void fillCopy() {
+        if (current == 1) {
+            dual2.fillC();
+            dual2.copyTo(dual1);
+        } else {
+            dual1.fillC();
+            dual1.copyTo(dual2);
+        }
     }
 }
