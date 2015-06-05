@@ -21,8 +21,11 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ScaleDrawable;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
@@ -34,11 +37,13 @@ import java.util.Random;
 
 public class HelloJni extends Activity implements View.OnTouchListener
 {
-    Bitmap bitmap;
-    BitmapDrawable bd;
+    BitmapDrawable bd1;
+    BitmapDrawable bd2;
     SurfaceView view;
     int height, width;
-    long cppLayer;
+    DualBitmap dual1;
+    DualBitmap dual2;
+
     /** Called when the activity is first created. */
     @SuppressWarnings("deprecation")
     @SuppressLint("NewApi")
@@ -63,22 +68,21 @@ public class HelloJni extends Activity implements View.OnTouchListener
         display.getSize(size);
         height = size.y;
         width = size.x;
-        Log.i("h", height + "");
-        Log.i("w", width + "");
-        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        bd = new BitmapDrawable(bitmap);
-        view.setBackground(bd);
-        cppLayer = getLayer(width, height);
-        flushLayer(bitmap, cppLayer);
-
-/*
-        for (int i = 1; i < height; i++) {
-            for (int j=1; j < width; j++) {
-                bitmap.setPixel(j, i , Color.RED);
-            }
-        }
-*/
+        Log.i("Manish h", height + " Manish");
+        Log.i("Manish w", width + " Manish");
+        height = height / 2;
+        width = width / 2;
+        dual1 = new DualBitmap(width, height);
+        dual2 = new DualBitmap(width, height);
+        bd1 = new BitmapDrawable(dual1.getBitmap());
+        bd2 = new BitmapDrawable(dual2.getBitmap());
+        view.setBackground(bd1);
+        bd1.setGravity(Gravity.CENTER);
+        bd2.setGravity(Gravity.CENTER);
         view.setOnTouchListener(this);
+        current = 1;
+        //dual1.fillC();
+        //dual2.fillC();
         setContentView(view);
     }
 
@@ -88,23 +92,7 @@ public class HelloJni extends Activity implements View.OnTouchListener
      */
     public native String  stringFromJNI();
 
-    public native long  getLayer(int w, int h);
-    public native void  flushLayer(Bitmap bitmap, long rootLayer);
-    public native void  flushDirty(Bitmap bitmap, long rootLayer);
-    public native long  touchLayer(long rootLayer, int x, int y);
-    public native void bitmapFoo(Bitmap bitmap, int x,int y,int width, int height);
 
-    /* This is another native method declaration that is *not*
-     * implemented by 'hello-jni'. This is simply to show that
-     * you can declare as many native methods in your Java code
-     * as you want, their implementation is searched in the
-     * currently loaded native libraries only the first time
-     * you call them.
-     *
-     * Trying to call this function will result in a
-     * java.lang.UnsatisfiedLinkError exception !
-     */
-    public native String  unimplementedStringFromJNI();
 
     /* this is used to load the 'hello-jni' library on application
      * startup. The library has already been unpacked into
@@ -114,23 +102,55 @@ public class HelloJni extends Activity implements View.OnTouchListener
     static {
         System.loadLibrary("hello-jni");
     }
-
+    boolean state;
+    int current;
+    @SuppressLint("NewApi")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        // directly invalidate sublayers without dirty flag
-        long layer = touchLayer(cppLayer, (int)event.getX(), (int)event.getY());
-        if (layer != 0) {
-            flushLayer(bitmap, layer);
+        long timeStart, timeEnd;
+        current = 1;
+        view.setBackground(bd1);
+        if (state) {
+
+            timeStart = System.currentTimeMillis();
+            for (int i=0; i<1000;i++) {
+                fillSwap();
+            }
+            timeEnd = System.currentTimeMillis();
+            Log.i("Profiling", "SwapFill:"+ (timeEnd - timeStart));
+        } else {
+            timeStart = System.currentTimeMillis();
+            for (int i=0; i<1000;i++) {
+                fillCopy();
+            }
+            timeEnd = System.currentTimeMillis();
+            Log.i("Profiling", "CopyFill:"+ (timeEnd - timeStart));
         }
 
-        /*
-        // code for testing dirty flag
-        touches++;
-        if (touches %3 == 0) {
-            flushDirty(bitmap, cppLayer);
-        }
-        */
+        state = !state;
         view.invalidate();
         return false;
+    }
+
+    @SuppressLint("NewApi")
+    void fillSwap() {
+        if (current == 1) {
+            dual2.fillC();
+            view.setBackground(bd2);
+        } else {
+            dual1.fillC();
+            view.setBackground(bd1);
+        }
+
+        current = 3 - current;
+    }
+    void fillCopy() {
+        if (current == 1) {
+            dual2.fillC();
+            dual2.copyTo(dual1);
+        } else {
+            dual1.fillC();
+            dual1.copyTo(dual2);
+        }
     }
 }
