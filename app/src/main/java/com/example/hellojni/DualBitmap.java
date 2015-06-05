@@ -19,6 +19,8 @@ public class DualBitmap {
     public static native int randomColor();
     public static native void copyBuf(long cbin, long cbout);
     public static native void freeWrap(long cHandle);
+    public native long UNSAFEMAKE(int w, int h);
+    public static native long UNSAFEFREE(long ch);
 
     /**
      * Creates a bitmap and locks it
@@ -95,5 +97,10 @@ public class DualBitmap {
         copyBuf(cBitmap, out.cBitmap);
     }
 
-
+    public void UNSAFE_ALLOC(int w, int h) {
+        cBitmap = UNSAFEMAKE(w, h);
+    }
+    public void UNSAFE_FREE() {
+        UNSAFEFREE(cBitmap);
+    }
 }

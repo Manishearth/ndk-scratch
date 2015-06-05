@@ -109,22 +109,29 @@ public class HelloJni extends Activity implements View.OnTouchListener
     public boolean onTouch(View v, MotionEvent event) {
         long timeStart, timeEnd;
         current = 1;
-        view.setBackground(bd1);
+        DualBitmap holder = new DualBitmap(width, height);
         if (state) {
 
+
+            DualBitmap db = new DualBitmap(width, height);
             timeStart = System.currentTimeMillis();
             for (int i=0; i<1000;i++) {
-                fillSwap();
+                db.fillC();
             }
             timeEnd = System.currentTimeMillis();
-            Log.i("Profiling", "SwapFill:"+ (timeEnd - timeStart));
+            db.close();
+            Log.i("Profiling", "BAlloc:"+ (timeEnd - timeStart));
         } else {
+            holder.UNSAFE_ALLOC(width, height);
             timeStart = System.currentTimeMillis();
             for (int i=0; i<1000;i++) {
-                fillCopy();
+
+                holder.fillC();
+
             }
             timeEnd = System.currentTimeMillis();
-            Log.i("Profiling", "CopyFill:"+ (timeEnd - timeStart));
+            Log.i("Profiling", "CAlloc:"+ (timeEnd - timeStart));
+            holder.UNSAFE_FREE();
         }
 
         state = !state;

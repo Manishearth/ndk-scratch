@@ -58,6 +58,18 @@ extern "C" {
        return (long)(void*)bh;
 
     }
+    jlong Java_com_example_hellojni_DualBitmap_UNSAFEMAKE(JNIEnv* env, jobject thiz,jint w, jint h) {
+
+       CBitmapHandle *bh = new CBitmapHandle(w, h);
+       bh->pixels = new uint32_t[w*h];
+       return (long)(void*)bh;
+
+    }
+    void Java_com_example_hellojni_DualBitmap_UNSAFEFREE(JNIEnv* env, jlong bh) {
+
+       CBitmapHandle *handle = (CBitmapHandle*)bh;
+       delete (uint32_t*)handle->pixels;
+    }
     void Java_com_example_hellojni_DualBitmap_UNLOCK(JNIEnv* env, jobject thiz, jobject bitmap) {
 
        AndroidBitmap_unlockPixels(env, bitmap);
@@ -80,7 +92,6 @@ extern "C" {
     }
     void Java_com_example_hellojni_DualBitmap_freeWrap(JNIEnv* env, jlong thing) {
         CBitmapHandle *handle = (CBitmapHandle*)thing;
-        delete handle;
     }
 
 }
