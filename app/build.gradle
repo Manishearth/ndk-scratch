@@ -6,8 +6,8 @@ android {
 
     defaultConfig {
         applicationId "com.example.hellojni"
-        minSdkVersion 3
-        targetSdkVersion 3
+        minSdkVersion 11
+        targetSdkVersion 11
 
         ndk {
             moduleName "hello-jni"
