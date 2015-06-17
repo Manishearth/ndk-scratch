@@ -112,8 +112,10 @@ public class HelloJni extends Activity {
             checkGlError();
             checkCurrent();
 
-
             while(true) {
+                Bitmap bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
+                bitmap.eraseColor(Color.RED);
+
                 long timeStart = System.currentTimeMillis();
                 for(int i=0; i<1000; i++) {
                     GLES20.glClearColor(1.0f, 1.0f, 0, 0);
@@ -130,18 +132,18 @@ public class HelloJni extends Activity {
                     GLES20.glVertexAttribPointer(texHandle, 2,
                             GLES20.GL_FLOAT, false, 0, mTexes);
                     checkGlError();
-
-
                     GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
-                    Bitmap bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
-                    bitmap.eraseColor(Color.RED);
+
                     GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
                     GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
                     GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
 
+
                     GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
                     Log.d(TAG, "draw!!");
                     checkGlError();
+
+
 
                     if (!mEgl.eglSwapBuffers(mEglDisplay, mEglSurface)) {
                         Log.e(TAG, "cannot swap buffers!");
@@ -152,7 +154,7 @@ public class HelloJni extends Activity {
                 Log.e("Profiling:", ""+ (timeEnd - timeStart));
 
                 try {
-                    Thread.sleep(3000);
+                    Thread.sleep(6000);
                 } catch (InterruptedException e) {
 
                 }
