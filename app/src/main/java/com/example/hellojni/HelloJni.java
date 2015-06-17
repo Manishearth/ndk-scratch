@@ -16,18 +16,26 @@
 package com.example.hellojni;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ScaleDrawable;
+import android.os.Build;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.widget.TextView;
 import android.os.Bundle;
@@ -35,11 +43,11 @@ import android.os.Bundle;
 import java.util.Random;
 
 
-public class HelloJni extends Activity implements View.OnTouchListener
+public class HelloJni extends Activity implements TextureView.SurfaceTextureListener
 {
-    BitmapDrawable bd1;
-    BitmapDrawable bd2;
-    SurfaceView view;
+    Bitmap b1;
+    Bitmap b2;
+    TextureView view;
     int height, width;
     DualBitmap dual1;
     DualBitmap dual2;
@@ -61,7 +69,7 @@ public class HelloJni extends Activity implements View.OnTouchListener
         TextView  tv = new TextView(this);
         tv.setText( stringFromJNI() );*/
 
-        view = new SurfaceView(this);
+        view = new TextureView(this);
 
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -74,12 +82,11 @@ public class HelloJni extends Activity implements View.OnTouchListener
         width = width / 2;
         dual1 = new DualBitmap(width, height);
         dual2 = new DualBitmap(width, height);
-        bd1 = new BitmapDrawable(dual1.getBitmap());
-        bd2 = new BitmapDrawable(dual2.getBitmap());
-        view.setBackground(bd1);
-        bd1.setGravity(Gravity.CENTER);
-        bd2.setGravity(Gravity.CENTER);
-        view.setOnTouchListener(this);
+        dual1.fillC();
+        dual2.fillC();
+        b1 = dual1.getBitmap();
+        b2 = dual2.getBitmap();
+        view.setSurfaceTextureListener(this);
         current = 1;
         //dual1.fillC();
         //dual2.fillC();
@@ -102,39 +109,62 @@ public class HelloJni extends Activity implements View.OnTouchListener
     static {
         System.loadLibrary("hello-jni");
     }
-    boolean state;
     int current;
-    @SuppressLint("NewApi")
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        long timeStart, timeEnd;
-        current = 1;
-        view.setBackground(bd1);
 
-        timeStart = System.currentTimeMillis();
-        for (int i=0; i<1000;i++) {
-            fillSwap();
-        }
-        timeEnd = System.currentTimeMillis();
-        Log.i("Profiling", "SwapFill:"+ (timeEnd - timeStart));
-
-
-        state = !state;
-        view.invalidate();
-        return false;
-    }
 
     @SuppressLint("NewApi")
-    void fillSwap() {
+    void fillSwap(Surface surface) {
+
+        Canvas can = surface.lockCanvas(new Rect(0,0,0,0));
         if (current == 1) {
             dual2.fillC();
-            view.setBackground(bd2);
+            can.drawBitmap(b2, 0, 0, null);
         } else {
             dual1.fillC();
-            view.setBackground(bd1);
+            can.drawBitmap(b1, 0, 0, null);
         }
 
+        surface.unlockCanvasAndPost(can);
         current = 3 - current;
     }
 
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        Surface s = new Surface(surface);
+
+        long timeStart, timeEnd;
+        current = 1;
+
+        while(true) {
+            timeStart = System.currentTimeMillis();
+            for (int i=0; i<1000;i++) {
+                fillSwap(s);
+            }
+            timeEnd = System.currentTimeMillis();
+            Log.i("Profiling", "SwapFillTex:"+ (timeEnd - timeStart));
+
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        return false;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
+    }
 }
