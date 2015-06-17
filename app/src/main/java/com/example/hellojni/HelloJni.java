@@ -110,22 +110,14 @@ public class HelloJni extends Activity implements View.OnTouchListener
         long timeStart, timeEnd;
         current = 1;
         view.setBackground(bd1);
-        if (state) {
 
-            timeStart = System.currentTimeMillis();
-            for (int i=0; i<1000;i++) {
-                fillSwap();
-            }
-            timeEnd = System.currentTimeMillis();
-            Log.i("Profiling", "SwapFill:"+ (timeEnd - timeStart));
-        } else {
-            timeStart = System.currentTimeMillis();
-            for (int i=0; i<1000;i++) {
-                fillCopy();
-            }
-            timeEnd = System.currentTimeMillis();
-            Log.i("Profiling", "CopyFill:"+ (timeEnd - timeStart));
+        timeStart = System.currentTimeMillis();
+        for (int i=0; i<1000;i++) {
+            fillSwap();
         }
+        timeEnd = System.currentTimeMillis();
+        Log.i("Profiling", "SwapFill:"+ (timeEnd - timeStart));
+
 
         state = !state;
         view.invalidate();
@@ -144,13 +136,5 @@ public class HelloJni extends Activity implements View.OnTouchListener
 
         current = 3 - current;
     }
-    void fillCopy() {
-        if (current == 1) {
-            dual2.fillC();
-            dual2.copyTo(dual1);
-        } else {
-            dual1.fillC();
-            dual1.copyTo(dual2);
-        }
-    }
+
 }
