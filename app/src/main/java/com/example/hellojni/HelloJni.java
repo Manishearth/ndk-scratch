@@ -50,7 +50,6 @@ public class HelloJni extends Activity implements View.OnTouchListener
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-
         super.onCreate(savedInstanceState);
 
         /* Create a TextView and set its content.
@@ -111,6 +110,7 @@ public class HelloJni extends Activity implements View.OnTouchListener
         current = 1;
         view.setBackground(bd1);
 
+
         timeStart = System.currentTimeMillis();
         for (int i=0; i<1000;i++) {
             fillSwap();
@@ -127,10 +127,10 @@ public class HelloJni extends Activity implements View.OnTouchListener
     @SuppressLint("NewApi")
     void fillSwap() {
         if (current == 1) {
-            dual2.fillC();
+            //dual2.fillC();
             view.setBackground(bd2);
         } else {
-            dual1.fillC();
+            //dual1.fillC();
             view.setBackground(bd1);
         }
 
