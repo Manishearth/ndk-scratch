@@ -43,6 +43,7 @@ import android.os.Bundle;
 import java.util.Random;
 
 
+@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class HelloJni extends Activity implements TextureView.SurfaceTextureListener
 {
     Bitmap b1;
@@ -117,10 +118,10 @@ public class HelloJni extends Activity implements TextureView.SurfaceTextureList
 
         Canvas can = surface.lockCanvas(new Rect(0,0,0,0));
         if (current == 1) {
-            dual2.fillC();
+            //dual2.fillC();
             can.drawBitmap(b2, 0, 0, null);
         } else {
-            dual1.fillC();
+            //dual1.fillC();
             can.drawBitmap(b1, 0, 0, null);
         }
 
@@ -136,6 +137,7 @@ public class HelloJni extends Activity implements TextureView.SurfaceTextureList
         long timeStart, timeEnd;
         current = 1;
 
+        //noinspection InfiniteLoopStatement
         while(true) {
             timeStart = System.currentTimeMillis();
             for (int i=0; i<1000;i++) {
