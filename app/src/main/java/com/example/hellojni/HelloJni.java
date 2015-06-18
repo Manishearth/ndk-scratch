@@ -37,6 +37,7 @@ import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.TextView;
 import android.os.Bundle;
 
@@ -44,11 +45,11 @@ import java.util.Random;
 
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-public class HelloJni extends Activity implements TextureView.SurfaceTextureListener
+public class HelloJni extends Activity implements OnTouchListener
 {
     Bitmap b1;
     Bitmap b2;
-    TextureView view;
+    SurfaceView view;
     int height, width;
     DualBitmap dual1;
     DualBitmap dual2;
@@ -70,7 +71,7 @@ public class HelloJni extends Activity implements TextureView.SurfaceTextureList
         TextView  tv = new TextView(this);
         tv.setText( stringFromJNI() );*/
 
-        view = new TextureView(this);
+        view = new SurfaceView(this);
 
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -87,7 +88,7 @@ public class HelloJni extends Activity implements TextureView.SurfaceTextureList
         dual2.fillC();
         b1 = dual1.getBitmap();
         b2 = dual2.getBitmap();
-        view.setSurfaceTextureListener(this);
+        view.setOnTouchListener(this);
         current = 1;
         //dual1.fillC();
         //dual2.fillC();
@@ -118,10 +119,10 @@ public class HelloJni extends Activity implements TextureView.SurfaceTextureList
 
         Canvas can = surface.lockCanvas(new Rect(0,0,0,0));
         if (current == 1) {
-            //dual2.fillC();
+            dual2.fillC();
             can.drawBitmap(b2, 0, 0, null);
         } else {
-            //dual1.fillC();
+            dual1.fillC();
             can.drawBitmap(b1, 0, 0, null);
         }
 
@@ -129,44 +130,29 @@ public class HelloJni extends Activity implements TextureView.SurfaceTextureList
         current = 3 - current;
     }
 
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+
     @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-        Surface s = new Surface(surface);
+    public boolean onTouch(View v, MotionEvent event) {
+        Surface s = view.getHolder().getSurface();
 
         long timeStart, timeEnd;
         current = 1;
 
         //noinspection InfiniteLoopStatement
-        while(true) {
+
             timeStart = System.currentTimeMillis();
             for (int i=0; i<1000;i++) {
                 fillSwap(s);
             }
             timeEnd = System.currentTimeMillis();
-            Log.i("Profiling", "SwapFillTex:"+ (timeEnd - timeStart));
+            Log.i("Profiling", "SwapFillSurf:"+ (timeEnd - timeStart));
 
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
 
-    }
-
-    @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-
-    }
-
-    @Override
-    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
         return false;
-    }
-
-    @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-
     }
 }
